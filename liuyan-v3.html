@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星空留言 - 纪念</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* --- 1. 基础样式 --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+            color: #fff;
+        }
+
+        #star-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        /* --- 2. 留言卡片 (孔明灯) --- */
+        #lantern-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .lantern {
+            position: absolute;
+            width: 220px;
+            padding: 15px;
+            background: rgba(255, 245, 220, 0.9); 
+            color: #5d4037;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.6), 0 0 30px rgba(255, 165, 0, 0.2);
+            cursor: pointer;
+            user-select: none;
+            top: 110%;
+            will-change: transform;
+            visibility: hidden;
+        }
+
+        .lantern:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 25px rgba(255, 165, 0, 0.9);
+            z-index: 100;
+        }
+
+        .lantern-date { font-size: 12px; color: #8d6e63; margin-bottom: 5px; }
+        .lantern-content {
+            font-size: 14px; line-height: 1.5;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden; margin-bottom: 10px;
+        }
+        .lantern-author {
+            font-size: 12px; text-align: right; font-weight: bold;
+            display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+        }
+        .lantern-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #d7ccc8; }
+
+        /* --- 3. 通用弹窗样式 (读 & 写) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: 999;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: #fffaf0; color: #333; width: 90%; max-width: 500px;
+            padding: 30px; border-radius: 10px; position: relative;
+            transform: translateY(20px); transition: transform 0.3s ease;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+
+        .close-btn {
+            position: absolute; top: 15px; right: 20px; font-size: 24px;
+            cursor: pointer; color: #999;
+        }
+
+        /* 读信弹窗特有 */
+        .modal-text { font-size: 16px; line-height: 1.8; white-space: pre-wrap; max-height: 60vh; overflow-y: auto; }
+        .modal-meta { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; text-align: right; color: #666; font-size: 14px; }
+
+        /* --- 4. 写信按钮 & 表单 --- */
+        #write-btn {
+            position: fixed; bottom: 40px; right: 40px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: rgba(255, 165, 0, 0.8);
+            color: white; font-size: 30px; border: none;
+            box-shadow: 0 0 20px rgba(255, 165, 0, 0.6);
+            cursor: pointer; z-index: 500;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.3s ease, background 0.3s;
+        }
+        #write-btn:hover { transform: scale(1.1); background: rgba(255, 165, 0, 1); }
+
+        /* 表单样式 */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
+        .form-input, .form-textarea {
+            width: 100%; padding: 10px; border: 1px solid #ddd;
+            border-radius: 5px; box-sizing: border-box;
+            font-family: inherit; font-size: 14px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .form-textarea { height: 120px; resize: none; }
+        .submit-btn {
+            width: 100%; padding: 12px; background: #302b63; color: white;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 16px;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover { background: #4a4485; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* 加载提示 */
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.7); font-size: 14px; letter-spacing: 2px; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景星星 -->
+    <div id="star-container"></div>
+    <!-- 加载提示 -->
+    <div id="loading">正在收集思念...</div>
+    <!-- 留言漂浮层 -->
+    <div id="lantern-container"></div>
+
+    <!-- 写信悬浮按钮 -->
+    <button id="write-btn" title="寄托思念">✎</button>
+
+    <!-- 1. 读信弹窗 -->
+    <div id="read-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('read-modal')">&times;</span>
+            <div class="modal-text" id="full-content"></div>
+            <div class="modal-meta">
+                <span id="full-author"></span> · <span id="full-date"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 写信弹窗 -->
+    <div id="write-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('write-modal')">&times;</span>
+            <h3 style="margin-top:0; color:#302b63;">寄托思念</h3>
+            <form id="guestbook-form">
+                <div class="form-group">
+                    <input type="text" class="form-input" name="author_name" placeholder="你的名字 (可选)" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-input" name="author_email" placeholder="邮箱 (保密，可选)">
+                </div>
+                <div class="form-group">
+                    <textarea class="form-textarea" name="content" placeholder="写下你想说的话..." required></textarea>
+                </div>
+                <!-- 蜜罐字段 (隐藏) -->
+                <input type="text" name="honeypot" style="display:none;" autocomplete="off">
+                
+                <button type="submit" class="submit-btn" id="submit-btn">发送孔明灯</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 初始化背景星星 ---
+        function createStars() {
+            const container = document.getElementById('star-container');
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2.5;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                gsap.to(star, { opacity: 0.2, duration: Math.random() * 2 + 1, repeat: -1, yoyo: true, ease: "sine.inOut" });
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        // --- 2. 获取数据 (GET) ---
+        const API_BASE = 'https://cuifeifei.cn/wp-json/my-guestbook/v1';
+        
+        fetch(`${API_BASE}/list?per_page=100`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                if (Array.isArray(data) && data.length > 0) {
+                    renderLanterns(data);
+                } else {
+                    document.getElementById('loading').innerText = '暂时还没有留言...';
+                    document.getElementById('loading').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').innerText = '网络连接失败';
+            });
+
+        // --- 3. 渲染卡片 ---
+        function renderLanterns(data) {
+            const container = document.getElementById('lantern-container');
+            data.forEach((item, index) => {
+                const lantern = document.createElement('div');
+                lantern.className = 'lantern';
+                const shortContent = item.content.length > 50 ? item.content.substring(0, 50) + '...' : item.content;
+                const avatarHtml = item.avatar ? `<img src="${item.avatar}" class="lantern-avatar">` : '';
+
+                lantern.innerHTML = `
+                    <div class="lantern-date">${item.date}</div>
+                    <div class="lantern-content">${shortContent}</div>
+                    <div class="lantern-author">${avatarHtml} ${item.author}</div>
+                `;
+                lantern.addEventListener('click', () => openReadModal(item));
+                
+                const randomLeft = Math.random() * 85 + 5; 
+                lantern.style.left = randomLeft + '%';
+                container.appendChild(lantern);
+
+                // 动画
+                const duration = 25 + Math.random() * 20; 
+                const delay = index * 2.5; 
+                gsap.set(lantern, { autoAlpha: 1 });
+                gsap.to(lantern, {
+                    y: -window.innerHeight - 400, duration: duration, ease: "none", repeat: -1, delay: delay,
+                    onRepeat: () => { lantern.style.left = (Math.random() * 85 + 5) + '%'; }
+                });
+                gsap.to(lantern, { x: "random(-40, 40)", duration: "random(3, 6)", ease: "sine.inOut", repeat: -1, yoyo: true });
+            });
+        }
+
+        // --- 4. 弹窗控制逻辑 ---
+        function openReadModal(data) {
+            document.getElementById('full-content').innerText = data.content;
+            document.getElementById('full-author').innerText = data.author;
+            document.getElementById('full-date').innerText = data.date;
+            document.getElementById('read-modal').classList.add('active');
+        }
+
+        // 打开写信弹窗
+        document.getElementById('write-btn').addEventListener('click', () => {
+            document.getElementById('write-modal').classList.add('active');
+        });
+
+        // 关闭任意弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 点击遮罩层关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        });
+
+        // --- 5. 提交留言 (POST) ---
+        const form = document.getElementById('guestbook-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // 阻止表单默认跳转
+
+            // 获取表单数据
+            const formData = new FormData(form);
+            const data = {
+                author_name: formData.get('author_name'),
+                author_email: formData.get('author_email'),
+                content: formData.get('content'),
+                honeypot: formData.get('honeypot') // 蜜罐
+            };
+
+            // 按钮变更为加载状态
+            submitBtn.disabled = true;
+            submitBtn.innerText = '发送中...';
+
+            fetch(`${API_BASE}/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('留言已发送，审核通过后将升起。');
+                    form.reset(); // 清空表单
+                    closeModal('write-modal'); // 关闭弹窗
+                } else {
+                    alert('发送失败：' + (result.message || '未知错误'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('网络错误，请稍后再试。');
+            })
+            .finally(() => {
+                // 恢复按钮状态
+                submitBtn.disabled = false;
+                submitBtn.innerText = '发送孔明灯';
+            });
+        });
+
+    </script>
+</body>
+</html>
