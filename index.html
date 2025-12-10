@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星空留言 - 永恒的思念</title>
+    <title>星空留言板 - 永恒的思念</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         body, html {
@@ -599,7 +599,7 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage('思念已寄出，审核通过后将升起', 'success');
+                    showMessage('思念已寄出，即将化为星辰', 'success');
                     document.getElementById('guestbook-form').reset();
                     closeModal('write-modal');
                     localStorage.removeItem(CACHE_KEY);
@@ -653,3 +653,4 @@
     </script>
 </body>
 </html>
+
