@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星空留言 - 纪念</title>
+    <title>星空留言 - 永恒的思念</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        /* --- 1. 基础样式 --- */
         body, html {
             margin: 0;
             padding: 0;
@@ -18,40 +17,7 @@
             color: #fff;
         }
 
-        /* --- 照片容器样式 --- */
-        #memory-photo-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 0; 
-            pointer-events: none; 
-        }
-
-        #memory-photo {
-            max-width: 85%;  
-            max-height: 80%; 
-            object-fit: contain; 
-            border-radius: 15px; 
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); 
-            opacity: 0.5; 
-            -webkit-mask-image: radial-gradient(black 60%, transparent 100%);
-            mask-image: radial-gradient(black 60%, transparent 100%);
-            transition: opacity 1.5s ease; 
-        }
-
-        @media (max-width: 768px) {
-            #memory-photo {
-                max-width: 90%;
-                max-height: 60%; 
-                opacity: 0; 
-            }
-        }
-
+        /* 背景星星层 - 最底层 */
         #star-container {
             position: absolute;
             top: 0;
@@ -64,47 +30,124 @@
 
         .star {
             position: absolute;
-            background: rgb(245, 234, 133);;
+            background: rgb(245, 234, 133);
             border-radius: 50%;
-            opacity: 0.8;
+            opacity: 0.6; /* 稍微降低透明度，让照片更突出 */
         }
 
-        /* --- 2. 留言卡片 (孔明灯) --- */
+        /* 照片容器 - 中间层，在星星之上 */
+        #memory-photo-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2; /* 提高层级，在星星之上 */
+            pointer-events: none; 
+        }
+
+        #memory-photo {
+            max-width: 75%;  
+            max-height: 70%; 
+            object-fit: contain; 
+            border-radius: 20px; /* 稍微增加圆角，更柔和 */
+            /* 修改阴影效果，更适合纪念主题 */
+            box-shadow: 
+                0 0 60px rgba(255, 255, 255, 0.3),
+                0 0 120px rgba(255, 255, 255, 0.1),
+                inset 0 0 60px rgba(255, 255, 255, 0.1);
+            opacity: 0.75; /* 稍微提高透明度，让照片更清晰 */
+            /* 移除遮罩效果，让照片完整显示 */
+            transition: opacity 2s ease, transform 0.3s ease; 
+            filter: brightness(1.1) contrast(1.05); /* 轻微提亮 */
+        }
+
+        /* 为照片添加轻微的呼吸效果 */
+        #memory-photo {
+            animation: gentle-glow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes gentle-glow {
+            0% {
+                box-shadow: 
+                    0 0 60px rgba(255, 255, 255, 0.3),
+                    0 0 120px rgba(255, 255, 255, 0.1);
+                transform: scale(1);
+            }
+            100% {
+                box-shadow: 
+                    0 0 80px rgba(255, 255, 255, 0.4),
+                    0 0 160px rgba(255, 255, 255, 0.15);
+                transform: scale(1.02);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #memory-photo {
+                max-width: 90%;
+                max-height: 65%; 
+                opacity: 0.7; 
+            }
+        }
+
+        /* 留言漂浮层 - 最上层 */
         #lantern-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2; 
+            z-index: 3; /* 在照片之上 */
         }
 
         .lantern {
             position: absolute;
             width: 220px;
             padding: 15px;
-            background: rgba(255, 245, 220, 0.9); 
+            /* 调整留言卡片样式，更适合纪念主题 */
+            background: rgba(255, 248, 240, 0.95); 
             color: #5d4037;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(255, 165, 0, 0.6), 0 0 30px rgba(255, 165, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.4),
+                0 0 40px rgba(255, 215, 0, 0.2),
+                0 4px 15px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             user-select: none;
             top: 110%;
             will-change: transform;
             visibility: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
 
         .lantern:hover {
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 0 25px rgba(255, 165, 0, 0.9);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 
+                0 0 30px rgba(255, 215, 0, 0.6),
+                0 0 60px rgba(255, 215, 0, 0.3);
             z-index: 100;
+            transform: scale(1.05);
         }
 
-        .lantern-date { font-size: 12px; color: #8d6e63; margin-bottom: 5px; }
+        .lantern-date { 
+            font-size: 12px; 
+            color: #8d6e63; 
+            margin-bottom: 5px; 
+            opacity: 0.8;
+        }
+        
         .lantern-content {
-            font-size: 14px; line-height: 1.5;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-            overflow: hidden; margin-bottom: 10px;
+            font-size: 14px; 
+            line-height: 1.6;
+            display: -webkit-box; 
+            -webkit-line-clamp: 3; 
+            -webkit-box-orient: vertical;
+            overflow: hidden; 
+            margin-bottom: 10px;
+            color: #4a4a4a;
         }
         
         .lantern-author {
@@ -113,86 +156,199 @@
             font-weight: bold;
             color: #8d6e63;
             margin-top: 5px;
+            opacity: 0.9;
         }
 
-        /* --- 3. 通用弹窗样式 --- */
+        /* 其他样式保持不变 */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 999;
+            background: rgba(0, 0, 0, 0.8); z-index: 999;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
         .modal-content {
-            background: #fffaf0; color: #333; width: 90%; max-width: 500px;
-            padding: 30px; border-radius: 10px; position: relative;
+            background: linear-gradient(135deg, #fffaf0 0%, #fff8f0 100%); 
+            color: #333; width: 90%; max-width: 500px;
+            padding: 30px; border-radius: 15px; position: relative;
             transform: translateY(20px); transition: transform 0.3s ease;
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 0 50px rgba(255, 255, 255, 0.2),
+                0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
         .modal-overlay.active .modal-content { transform: translateY(0); }
 
         .close-btn {
             position: absolute; top: 15px; right: 20px; font-size: 24px;
-            cursor: pointer; color: #999;
+            cursor: pointer; color: #999; transition: color 0.3s;
+        }
+        .close-btn:hover { color: #666; }
+
+        .modal-text { 
+            font-size: 16px; 
+            line-height: 1.8; 
+            white-space: pre-wrap; 
+            max-height: 60vh; 
+            overflow-y: auto; 
+            color: #4a4a4a;
+        }
+        
+        .modal-meta { 
+            margin-top: 20px; 
+            padding-top: 20px; 
+            border-top: 1px solid rgba(255, 215, 0, 0.3); 
+            text-align: right; 
+            color: #8d6e63; 
+            font-size: 14px; 
         }
 
-        .modal-text { font-size: 16px; line-height: 1.8; white-space: pre-wrap; max-height: 60vh; overflow-y: auto; }
-        .modal-meta { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; text-align: right; color: #666; font-size: 14px; }
-
-        /* --- 4. 写信按钮 & 表单 --- */
         #write-btn {
             position: fixed; bottom: 40px; right: 40px;
-            width: 60px; height: 60px; border-radius: 50%;
-            background: rgba(255, 165, 0, 0.8);
-            color: white; font-size: 30px; border: none;
-            box-shadow: 0 0 20px rgba(255, 165, 0, 0.6);
+            width: 65px; height: 65px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9));
+            color: white; font-size: 28px; border: none;
+            box-shadow: 
+                0 0 25px rgba(255, 215, 0, 0.6),
+                0 8px 20px rgba(0, 0, 0, 0.3);
             cursor: pointer; z-index: 500;
             display: flex; justify-content: center; align-items: center;
-            transition: transform 0.3s ease, background 0.3s;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        #write-btn:hover { transform: scale(1.1); background: rgba(255, 165, 0, 1); }
+        #write-btn:hover { 
+            transform: scale(1.1); 
+            background: linear-gradient(135deg, rgba(255, 215, 0, 1), rgba(255, 165, 0, 1));
+            box-shadow: 
+                0 0 35px rgba(255, 215, 0, 0.8),
+                0 12px 25px rgba(0, 0, 0, 0.4);
+        }
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
         .form-input, .form-textarea {
-            width: 100%; padding: 10px; border: 1px solid #ddd;
-            border-radius: 5px; box-sizing: border-box;
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 8px; box-sizing: border-box;
             font-family: inherit; font-size: 14px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
         .form-textarea { height: 120px; resize: none; }
         .submit-btn {
-            width: 100%; padding: 12px; background: #302b63; color: white;
-            border: none; border-radius: 5px; cursor: pointer; font-size: 16px;
-            transition: background 0.3s;
+            width: 100%; padding: 14px; 
+            background: linear-gradient(135deg, #302b63, #4a4485); 
+            color: white; border: none; border-radius: 8px; 
+            cursor: pointer; font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(48, 43, 99, 0.3);
         }
-        .submit-btn:hover { background: #4a4485; }
-        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .submit-btn:hover { 
+            background: linear-gradient(135deg, #4a4485, #5a5495); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(48, 43, 99, 0.4);
+        }
+        .submit-btn:disabled { 
+            background: #ccc; 
+            cursor: not-allowed; 
+            transform: none;
+            box-shadow: none;
+        }
 
         #loading {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: rgba(255, 255, 255, 0.9); font-size: 14px; letter-spacing: 2px; z-index: 10;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: rgba(255, 255, 255, 0.9); font-size: 16px; letter-spacing: 3px; z-index: 10;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-message {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(220, 53, 69, 0.95); color: white; padding: 12px 24px;
+            border-radius: 8px; z-index: 1000; display: none;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .success-message {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(40, 167, 69, 0.95); color: white; padding: 12px 24px;
+            border-radius: 8px; z-index: 1000; display: none;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        /* 新增：页面标题样式 */
+        .memorial-title {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .memorial-title h1 {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .memorial-title p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 5px 0 0 0;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .memorial-title h1 {
+                font-size: 22px;
+            }
+            .memorial-title p {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- 照片容器 -->
+    <!-- 新增：纪念标题 -->
+    <div class="memorial-title">
+        <h1>永恒的思念</h1>
+        <p>愿每一份思念都化作星光，陪伴你在天堂</p>
+    </div>
+
+    <!-- 背景星星 - 最底层 -->
+    <div id="star-container"></div>
+    
+    <!-- 照片容器 - 中间层 -->
     <div id="memory-photo-container">
         <img id="memory-photo" src="" alt="Memory">
     </div>
 
-    <!-- 背景星星 -->
-    <div id="star-container"></div>
     <!-- 加载提示 -->
     <div id="loading">正在收集思念...</div>
-    <!-- 留言漂浮层 -->
+    
+    <!-- 留言漂浮层 - 最上层 -->
     <div id="lantern-container"></div>
 
     <!-- 写信悬浮按钮 -->
     <button id="write-btn" title="寄托思念">✎</button>
+
+    <!-- 消息提示 -->
+    <div id="error-message" class="error-message"></div>
+    <div id="success-message" class="success-message"></div>
 
     <!-- 1. 读信弹窗 -->
     <div id="read-modal" class="modal-overlay">
@@ -212,22 +368,86 @@
             <h3 style="margin-top:0; color:#302b63;">寄托思念</h3>
             <form id="guestbook-form">
                 <div class="form-group">
-                    <!-- 修改：更新了占位符 -->
                     <input type="text" class="form-input" name="author_name" placeholder="请留下你的名字" maxlength="20">
                 </div>
-                <!-- 修改：删除了邮箱输入框 -->
-                
                 <div class="form-group">
-                    <textarea class="form-textarea" name="content" placeholder="写下你想说的话..." required></textarea>
+                    <textarea class="form-textarea" name="content" placeholder="写下你想对她说的话..." required maxlength="500"></textarea>
                 </div>
                 <input type="text" name="honeypot" style="display:none;" autocomplete="off">
-                <button type="submit" class="submit-btn" id="submit-btn">发送孔明灯</button>
+                <button type="submit" class="submit-btn" id="submit-btn">放飞思念</button>
             </form>
         </div>
     </div>
 
     <script>
-        // --- 0. 随机背景照片逻辑 ---
+        // JavaScript代码保持不变，只需要修改一个小细节
+        const API_BASE = 'https://cuifeifei.cn/wp-json/my-guestbook/v1';
+        const CACHE_KEY = 'lantern_data';
+        const CACHE_DURATION = 5 * 60 * 1000;
+        let isSubmitting = false;
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+
+        function showMessage(message, type = 'error') {
+            const element = document.getElementById(`${type}-message`);
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        function setCache(key, data) {
+            const cacheData = {
+                data: data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(key, JSON.stringify(cacheData));
+        }
+
+        function getCache(key) {
+            try {
+                const cached = localStorage.getItem(key);
+                if (!cached) return null;
+                
+                const cacheData = JSON.parse(cached);
+                if (Date.now() - cacheData.timestamp > CACHE_DURATION) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                return cacheData.data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function fetchWithRetry(url, options = {}, retries = MAX_RETRIES) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                
+                if (retries > 0 && (error.name === 'AbortError' || error.name === 'TypeError')) {
+                    console.log(`请求失败，${3 - retries + 1}秒后重试...`);
+                    await new Promise(resolve => setTimeout(resolve, (4 - retries) * 1000));
+                    return fetchWithRetry(url, options, retries - 1);
+                }
+                throw error;
+            }
+        }
+
         function setRandomPhoto() {
             const photos = [
                 "https://cuifeifei.cn/wp-content/uploads/2025/03/cropped-FF3.png",
@@ -240,79 +460,105 @@
             imgElement.src = photos[randomIndex];
             imgElement.onload = function() {
                 const isMobile = window.innerWidth <= 768;
-                imgElement.style.opacity = isMobile ? 0.5 : 0.55;
+                imgElement.style.opacity = isMobile ? 0.7 : 0.75;
             };
         }
-        setRandomPhoto();
 
-        // --- 1. 初始化背景星星 ---
         function createStars() {
             const container = document.getElementById('star-container');
-            for (let i = 0; i < 150; i++) {
+            for (let i = 0; i < 120; i++) { // 稍微减少星星数量，让照片更突出
                 const star = document.createElement('div');
                 star.className = 'star';
-                const size = Math.random() * 5;
+                const size = Math.random() * 4 + 1; // 稍微调整星星大小
                 star.style.width = size + 'px';
                 star.style.height = size + 'px';
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
-                gsap.to(star, { opacity: 0.2, duration: Math.random() * 2 + 1, repeat: -1, yoyo: true, ease: "sine.inOut" });
+                gsap.to(star, { 
+                    opacity: 0.3, // 降低星星透明度
+                    duration: Math.random() * 3 + 2, 
+                    repeat: -1, 
+                    yoyo: true, 
+                    ease: "sine.inOut" 
+                });
                 container.appendChild(star);
             }
         }
-        createStars();
 
-        // --- 2. 获取数据 (GET) ---
-        const API_BASE = 'https://cuifeifei.cn/wp-json/my-guestbook/v1';
-        
-        fetch(`${API_BASE}/list?per_page=100`)
-            .then(response => response.json())
-            .then(data => {
+        async function loadLanternData() {
+            const cachedData = getCache(CACHE_KEY);
+            if (cachedData) {
+                console.log('使用缓存数据');
                 document.getElementById('loading').style.display = 'none';
+                renderLanterns(cachedData);
+                return;
+            }
+
+            try {
+                const response = await fetchWithRetry(`${API_BASE}/list?per_page=100`);
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
                 if (Array.isArray(data) && data.length > 0) {
+                    setCache(CACHE_KEY, data);
                     renderLanterns(data);
                 } else {
-                    document.getElementById('loading').innerText = '暂时还没有留言...';
+                    document.getElementById('loading').innerText = '还没有思念的话语...';
                     document.getElementById('loading').style.display = 'block';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('loading').innerText = '网络连接失败';
-            });
+            } catch (error) {
+                console.error('加载留言失败:', error);
+                document.getElementById('loading').innerText = '加载失败，请刷新页面重试';
+                showMessage('网络连接失败，请检查网络后刷新页面');
+            }
+        }
 
-        // --- 3. 渲染卡片 ---
         function renderLanterns(data) {
             const container = document.getElementById('lantern-container');
+            container.innerHTML = '';
+            
             data.forEach((item, index) => {
                 const lantern = document.createElement('div');
                 lantern.className = 'lantern';
-                const shortContent = item.content.length > 50 ? item.content.substring(0, 50) + '...' : item.content;
+                const shortContent = item.content.length > 50 ? 
+                    item.content.substring(0, 50) + '...' : item.content;
                 
                 lantern.innerHTML = `
                     <div class="lantern-date">${item.date}</div>
                     <div class="lantern-content">${shortContent}</div>
                     <div class="lantern-author">—— ${item.author}</div>
                 `;
+                
                 lantern.addEventListener('click', () => openReadModal(item));
                 
                 const randomLeft = Math.random() * 85 + 5; 
                 lantern.style.left = randomLeft + '%';
                 container.appendChild(lantern);
 
-                // 动画
                 const duration = 25 + Math.random() * 20; 
-                const delay = index * 2.5; 
+                const delay = index * 2;
                 gsap.set(lantern, { autoAlpha: 1 });
                 gsap.to(lantern, {
-                    y: -window.innerHeight - 400, duration: duration, ease: "none", repeat: -1, delay: delay,
-                    onRepeat: () => { lantern.style.left = (Math.random() * 85 + 5) + '%'; }
+                    y: -window.innerHeight - 400, 
+                    duration: duration, 
+                    ease: "none", 
+                    repeat: -1, 
+                    delay: delay,
+                    onRepeat: () => { 
+                        lantern.style.left = (Math.random() * 85 + 5) + '%'; 
+                    }
                 });
-                gsap.to(lantern, { x: "random(-40, 40)", duration: "random(3, 6)", ease: "sine.inOut", repeat: -1, yoyo: true });
+                gsap.to(lantern, { 
+                    x: "random(-40, 40)", 
+                    duration: "random(3, 6)", 
+                    ease: "sine.inOut", 
+                    repeat: -1, 
+                    yoyo: true 
+                });
             });
         }
 
-        // --- 4. 弹窗控制逻辑 ---
         function openReadModal(data) {
             document.getElementById('full-content').innerText = data.content;
             document.getElementById('full-author').innerText = data.author;
@@ -320,61 +566,88 @@
             document.getElementById('read-modal').classList.add('active');
         }
 
-        document.getElementById('write-btn').addEventListener('click', () => {
-            document.getElementById('write-modal').classList.add('active');
-        });
-
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
 
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.classList.remove('active');
-            });
-        });
+        async function submitMessage(formData) {
+            if (isSubmitting) return;
+            isSubmitting = true;
 
-        // --- 5. 提交留言 (POST) ---
-        const form = document.getElementById('guestbook-form');
-        const submitBtn = document.getElementById('submit-btn');
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            const formData = new FormData(form);
-            
-            // 修改：自动填入一个虚拟邮箱，因为WordPress后端通常需要邮箱字段
-            const data = {
-                author_name: formData.get('author_name'),
-                author_email: 'visitor@liuyan.cuifeifei.cn', // 虚拟邮箱
-                content: formData.get('content'),
-                honeypot: formData.get('honeypot') 
-            };
-
+            const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
             submitBtn.innerText = '发送中...';
 
-            fetch(`${API_BASE}/add`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('留言已发送，审核通过后将升起。');
-                    form.reset(); 
-                    closeModal('write-modal'); 
-                } else {
-                    alert('发送失败：' + (result.message || '未知错误'));
+            try {
+                const data = {
+                    author_name: formData.get('author_name') || '匿名访客',
+                    author_email: 'visitor@liuyan.cuifeifei.cn',
+                    content: formData.get('content').trim(),
+                    honeypot: formData.get('honeypot')
+                };
+
+                if (data.honeypot) {
+                    throw new Error('提交失败');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('网络错误，请稍后再试。');
-            })
-            .finally(() => {
+
+                const response = await fetchWithRetry(`${API_BASE}/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('思念已寄出，审核通过后将升起', 'success');
+                    document.getElementById('guestbook-form').reset();
+                    closeModal('write-modal');
+                    localStorage.removeItem(CACHE_KEY);
+                } else {
+                    throw new Error(result.message || '提交失败');
+                }
+            } catch (error) {
+                console.error('提交失败:', error);
+                if (error.message.includes('429')) {
+                    showMessage('提交太频繁，请稍后再试');
+                } else {
+                    showMessage('提交失败：' + error.message);
+                }
+            } finally {
+                isSubmitting = false;
                 submitBtn.disabled = false;
-                submitBtn.innerText = '发送孔明灯';
+                submitBtn.innerText = '放飞思念';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setRandomPhoto();
+            createStars();
+            loadLanternData();
+
+            document.getElementById('write-btn').addEventListener('click', () => {
+                document.getElementById('write-modal').classList.add('active');
+            });
+
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) overlay.classList.remove('active');
+                });
+            });
+
+            document.getElementById('guestbook-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                submitMessage(formData);
+            });
+
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    const cachedData = getCache(CACHE_KEY);
+                    if (!cachedData) {
+                        loadLanternData();
+                    }
+                }
             });
         });
     </script>
