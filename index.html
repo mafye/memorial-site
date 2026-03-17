@@ -599,7 +599,7 @@
                     throw new Error('提交失败');
                 }
 
-                const response = await fetchWithRetry(`${API_BASE}/add`, {
+                const response = await fetchWithRetry(`/api/submit`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
